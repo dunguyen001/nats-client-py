@@ -4,7 +4,7 @@ from setuptools import setup
 # These are here for GitHub's dependency graph.
 setup(
     name="nats-client-py",
-    version="0.0.1",
+    version="0.2.0",
     extras_require={
         # 'nkeys': ['nkeys']
     },
