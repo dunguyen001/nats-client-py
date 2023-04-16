@@ -5,7 +5,5 @@ from setuptools import setup
 setup(
     name="nats-client-py",
     version="0.2.0",
-    extras_require={
-        # 'nkeys': ['nkeys']
-    },
+    includepackagedata=True,
 )

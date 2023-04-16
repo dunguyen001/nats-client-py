@@ -1,4 +1,4 @@
-from main import NatsBroker
+from client import NatsBroker
 from utils.action import ActionSchema
 
 

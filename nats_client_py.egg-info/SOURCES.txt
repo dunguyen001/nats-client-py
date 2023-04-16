@@ -1,0 +1,6 @@
+client.py
+setup.py
+nats_client_py.egg-info/PKG-INFO
+nats_client_py.egg-info/SOURCES.txt
+nats_client_py.egg-info/dependency_links.txt
+nats_client_py.egg-info/top_level.txt
