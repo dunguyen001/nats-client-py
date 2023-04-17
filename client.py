@@ -7,10 +7,16 @@ import typing
 import nats
 from nats.aio.client import Client, Msg
 
-from utils.action import ActionSchema
-
 nats_server = nats
 nats_client = None
+
+
+class ActionSchema:
+    def __init__(self, name, handle, queue: bool = True, validate=None):
+        self.name = name
+        self.handle = handle
+        self.queue = queue
+        self.validate = validate
 
 
 def prefix_topic(service_name, service_version, action_name):
@@ -54,12 +60,13 @@ class NatsBroker:
     def emit(self):
         ctx = self
 
-        async def emit_handle(topic, payload):
+        async def emit_handle(topic, payload, timeout=10000):
             try:
                 ctx.server_is_live()
                 m = await ctx.nc.request(
                     subject=topic,
-                    payload=encode_json(payload=payload)
+                    payload=encode_json(payload=payload),
+                    timeout=timeout
                 )
                 response = decode_json(m.data)
                 if not response['ok']:
@@ -69,6 +76,10 @@ class NatsBroker:
                 raise e
 
         return emit_handle
+
+    async def call(self, topic, payload, timeout=10000):
+        res = await self.emit()(topic, payload, timeout)
+        return res
 
     def server_is_live(self):
         if not self.nc.is_connected:
@@ -123,3 +134,31 @@ class NatsBroker:
             "broker": self.nc,
             "emit": self.emit(),
         }
+
+
+class CreateService:
+    version: str = '1'
+    name: str
+    workers: int = 1
+    actions: list[ActionSchema]
+
+    def __init__(self, version, name, workers):
+        self.actions = []
+        self.version = version
+        self.name = name
+        self.workers = workers
+
+    def add(self, **kwargs):
+        actions = kwargs.get('actions')
+        if isinstance(actions, list):
+            self.actions.extend(actions)
+        else:
+            self.actions.append(actions)
+
+    async def register(self, broker: NatsBroker):
+        await broker.create_service(
+            name=self.name,
+            version=self.version,
+            workers=self.workers,
+            actions=self.actions,
+        )
