@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="nats-client-py",
-    version="0.3.1",
+    version="0.3.2",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
